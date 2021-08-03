@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -13,20 +12,29 @@ namespace CabInvoiceGenerate
         int COST_PER_TIME;
         double MINIMUM_FARE;
 
-       
+        public enum RideType
+        {
+            Normal, Premium
+        }
 
         //Parameterised Constructor
-        public CabInvoiceCalculate()
+        public CabInvoiceCalculate(RideType rideType)
         {
             //Define values for Normal Ride
 
-            
+            if (rideType.Equals(RideType.Normal))
+            {
                 COST_PER_KM = 10;
                 COST_PER_TIME = 1;
                 MINIMUM_FARE = 5;
-            
+            }
             //Define values for Premium Ride
-           
+            else if (rideType.Equals(RideType.Premium))
+            {
+                COST_PER_KM = 15;
+                COST_PER_TIME = 1;
+                MINIMUM_FARE = 20;
+            }
         }
 
         //Calculate Fare
@@ -52,5 +60,27 @@ namespace CabInvoiceGenerate
             }
             return Math.Max(MINIMUM_FARE, totalFare);
         }
+
+        public InvoiceSummary CalculateFare(Rides[] rides)
+        {
+            double totalFare = 0;
+            try
+            {
+                if (rides.Length == 0)
+                {
+                    throw new CustomException(CustomException.ExceptionType.NULL_RIDES, "No Rides Found.");
+                }
+                foreach (Rides ride in rides)
+                {
+                    totalFare += this.CalculateFare(ride.distance, ride.time);
+                }
+            }
+            catch (CustomException ex)
+            {
+                Console.WriteLine(ex.message);
+            }
+            return new InvoiceSummary(rides.Length, totalFare);
+        }
+
     }
 }
